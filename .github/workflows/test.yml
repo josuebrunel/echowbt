@@ -29,9 +29,3 @@ jobs:
           run: |
               go get -u golang.org/x/lint/golint
               golint  ./...
-    build:
-        name: Renew documentation
-        runs-on: ubuntu-latest
-        steps:
-        - name: Pull new module version
-          uses: andrewslotin/go-proxy-pull-action@master
