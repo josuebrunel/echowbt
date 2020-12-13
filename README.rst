@@ -113,11 +113,11 @@ Example
 
     type EchoWBTestSuite struct {
         suite.Suite
-        Client echowb.Client
+        Client echowbt.Client
     }
 
     func (e *EchoWBTestSuite) SetupSuite() {
-        e.Client = echowb.New()
+        e.Client = echowbt.New()
     }
 
     func TestEchoWBT(t *testing.T) {
@@ -125,53 +125,53 @@ Example
     }
 
     func (e *EchoWBTestSuite) TestGet() {
-        url := echowb.URL{Path: "/"}
-        rec := e.Client.Get(url, GenericHandler(), nil, echowb.Headers{})
+        url := echowbt.URL{Path: "/"}
+        rec := e.Client.Get(url, GenericHandler(), nil, echowbt.Headers{})
         assert.Equal(e.T(), http.StatusOK, rec.Code)
-        url = echowb.URL{Path: "/?lastname=kouka&firstname=kim"}
-        rec = e.Client.Get(url, GenericHandler(), nil, echowb.Headers{})
+        url = echowbt.URL{Path: "/?lastname=kouka&firstname=kim"}
+        rec = e.Client.Get(url, GenericHandler(), nil, echowbt.Headers{})
         assert.Equal(e.T(), http.StatusOK, rec.Code)
         params := []string{"id"}
         values := []string{"1"}
-        url = echowb.URL{Path: "/:id", Params: params, Values: values}
-        rec = e.Client.Get(url, GenericHandler(), nil, echowb.Headers{})
+        url = echowbt.URL{Path: "/:id", Params: params, Values: values}
+        rec = e.Client.Get(url, GenericHandler(), nil, echowbt.Headers{})
         assert.Equal(e.T(), http.StatusOK, rec.Code)
-        data := echowb.JSONDecode(rec.Body)
+        data := echowbt.JSONDecode(rec.Body)
         assert.Equal(e.T(), "Loking", data["lastname"])
     }
 
     func (e *EchoWBTestSuite) TestPost() {
-        url := echowb.URL{Path: "/"}
+        url := echowbt.URL{Path: "/"}
         u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
-        rec := e.Client.Post(url, GenericHandler(), echowb.JSONEncode(u), echowb.Headers{})
+        rec := e.Client.Post(url, GenericHandler(), echowbt.JSONEncode(u), echowbt.Headers{})
         assert.Equal(e.T(), http.StatusCreated, rec.Code)
     }
 
     func (e *EchoWBTestSuite) TestPut() {
         params := []string{"id"}
         values := []string{"1"}
-        url := echowb.URL{Path: "/:id", Params: params, Values: values}
+        url := echowbt.URL{Path: "/:id", Params: params, Values: values}
         u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
-        headers := echowb.Headers{"Authorization": "Bearer <mytoken>"}
-        rec := e.Client.Put(url, GenericHandler(), echowb.JSONEncode(u), headers)
+        headers := echowbt.Headers{"Authorization": "Bearer <mytoken>"}
+        rec := e.Client.Put(url, GenericHandler(), echowbt.JSONEncode(u), headers)
         assert.Equal(e.T(), http.StatusNoContent, rec.Code)
     }
 
     func (e *EchoWBTestSuite) TestPatch() {
         params := []string{"id"}
         values := []string{"1"}
-        url := echowb.URL{Path: "/:id", Params: params, Values: values}
+        url := echowbt.URL{Path: "/:id", Params: params, Values: values}
         u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
-        headers := echowb.Headers{"Authorization": "Bearer <mytoken>"}
-        rec := e.Client.Patch(url, GenericHandler(), echowb.JSONEncode(u), headers)
+        headers := echowbt.Headers{"Authorization": "Bearer <mytoken>"}
+        rec := e.Client.Patch(url, GenericHandler(), echowbt.JSONEncode(u), headers)
         assert.Equal(e.T(), http.StatusNoContent, rec.Code)
     }
 
     func (e *EchoWBTestSuite) TestDelete() {
         params := []string{"id"}
         values := []string{"1"}
-        url := echowb.URL{Path: "/:id", Params: params, Values: values}
-        headers := echowb.Headers{"Authorization": "Bearer <mytoken>"}
+        url := echowbt.URL{Path: "/:id", Params: params, Values: values}
+        headers := echowbt.Headers{"Authorization": "Bearer <mytoken>"}
         rec := e.Client.Delete(url, GenericHandler(), nil, headers)
         assert.Equal(e.T(), http.StatusAccepted, rec.Code)
     }

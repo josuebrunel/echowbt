@@ -1,4 +1,4 @@
-package echowb
+package echowbt
 
 import (
 	"bytes"
