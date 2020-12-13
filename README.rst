@@ -17,7 +17,9 @@ EchoWBT
     :target: https://github.com/josuebrunel/echowbt/blob/master/LICENSE
 
 
-**EchoWBT** is a simple wrapper of *httptest* which helps test *Echo* apps easily
+**EchoWBT** is a simple wrapper of *httptest* allowing you to simply test your Echo_ app
+
+.. _Echo: https://github.com/labstack/echo
 
 Installation
 ------------
