@@ -10,6 +10,9 @@ EchoWBT
 .. image:: https://goreportcard.com/badge/github.com/josuebrunel/echowbt
     :target: https://goreportcard.com/report/github.com/josuebrunel/echowbt
 
+.. image:: https://img.shields.io/badge/License-MIT-blue.svg
+    :target: https://github.com/josuebrunel/echowbt/blob/master/LICENSE
+
 
 **EchoWBT** is a simple wrapper of *httptest* which helps test *Echo* apps easily
 
