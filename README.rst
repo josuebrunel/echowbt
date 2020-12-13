@@ -2,13 +2,13 @@ EchoWBT
 =======
 
 .. image:: https://github.com/josuebrunel/echowbt/workflows/Test/badge.svg?branch=master
-    :target: https://github.com/josuebrunel/echowbt/workflows/Test/badge.svg?branch=master
+    :target: https://github.com/josuebrunel/echowbt/actions?query=workflow%3Atest
 
 .. image:: https://coveralls.io/repos/github/josuebrunel/echowbt/badge.svg?branch=master
     :target: https://coveralls.io/github/josuebrunel/echowbt?branch=master
 
 .. image:: https://goreportcard.com/badge/github.com/josuebrunel/echowbt
-    :target: https://goreportcard.com/badge/github.com/josuebrunel/echowbt
+    :target: https://goreportcard.com/report/github.com/josuebrunel/echowbt
 
 
 **EchoWBT** is a simple wrapper of *httptest* which helps test *Echo* apps easily
