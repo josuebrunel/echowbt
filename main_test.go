@@ -3,7 +3,8 @@ package echowb_test
 import (
 	"github.com/josuebrunel/echowbt"
 	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -24,19 +25,29 @@ func GenericHandler() echo.HandlerFunc {
 		status, u := http.StatusOK, User{}
 		switch c.Request().Method {
 		case "POST":
-			log.Info("This is a POST")
+			log.Info("POST /")
 			status = http.StatusCreated
 		case "PUT":
-			log.Info("This is a PUT")
+			log.Info("PUT /:id")
+			if err := c.Bind(&u); err != nil {
+				log.Error(err)
+				return err
+			}
+			log.Info("USER: ", u)
 			status = http.StatusNoContent
 		case "PATCH":
-			log.Info("This is a PATCH")
+			log.Info("PATCH /:id")
+			if err := c.Bind(&u); err != nil {
+				log.Error(err)
+				return err
+			}
+			log.Info("USER: ", u)
 			status = http.StatusNoContent
 		case "DELETE":
-			log.Info("This is DELETE")
+			log.Info("DELETE /:id")
 			status = http.StatusAccepted
 		default:
-			log.Info("This is GET")
+			log.Info("GET /")
 			log.Info("QueryParams", c.QueryParams())
 			log.Info("Params", c.ParamNames())
 			log.Info("Values", c.ParamValues())
@@ -54,6 +65,8 @@ type Application struct {
 
 func App() (app Application) {
 	app = Application{E: echo.New()}
+	app.E.Logger.SetLevel(log.DEBUG)
+	app.E.Use(middleware.Logger())
 	app.E.GET("/", GenericHandler())
 	app.E.GET("/:id", GenericHandler())
 	app.E.POST("/", GenericHandler())
