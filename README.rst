@@ -1,7 +1,7 @@
 EchoWBT
 =======
 
-.. image:: https://github.com/josuebrunel/echowbt/workflows/Test/badge.svg?branch=master
+.. image:: https://github.com/josuebrunel/echowbt/workflows/test/badge.svg?branch=master
     :target: https://github.com/josuebrunel/echowbt/actions?query=workflow%3Atest
 
 .. image:: https://coveralls.io/repos/github/josuebrunel/echowbt/badge.svg?branch=master
