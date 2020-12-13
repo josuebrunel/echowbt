@@ -7,6 +7,9 @@ EchoWBT
 .. image:: https://coveralls.io/repos/github/josuebrunel/echowbt/badge.svg?branch=master
     :target: https://coveralls.io/github/josuebrunel/echowbt?branch=master
 
+.. image:: https://pkg.go.dev/badge/github.com/josuebrunel/echowbt.svg
+    :target: https://pkg.go.dev/github.com/josuebrunel/echowbt
+
 .. image:: https://goreportcard.com/badge/github.com/josuebrunel/echowbt
     :target: https://goreportcard.com/report/github.com/josuebrunel/echowbt
 
