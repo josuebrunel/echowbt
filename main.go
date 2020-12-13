@@ -26,13 +26,13 @@ type JSONObject map[string]interface{}
 
 // JSONDecode returns an interface from a json formatted
 // http.ResponseRecorder.Body
-func JSONDecode(b *bytes.Buffer) (v JSONObject) {
-	v = JSONObject{}
+func JSONDecode(b *bytes.Buffer) JSONObject {
+	v := JSONObject{}
 	err := json.Unmarshal(b.Bytes(), &v)
 	if err != nil {
 		panic(err)
 	}
-	return
+	return v
 }
 
 // JSONEncode transforms interface into a []byte
