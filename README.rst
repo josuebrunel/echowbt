@@ -33,7 +33,7 @@ Example
 .. code:: go
 
 
-    package echowb_test
+    package myapp_test
 
     import (
         "github.com/josuebrunel/echowbt"
@@ -131,8 +131,8 @@ Example
         url = echowbt.URL{Path: "/?lastname=kouka&firstname=kim"}
         rec = e.Client.Get(url, GenericHandler(), nil, echowbt.Headers{})
         assert.Equal(e.T(), http.StatusOK, rec.Code)
-        params := []string{"id"}
-        values := []string{"1"}
+        params := echowbt.URLParams{"id"}
+        values := echowbt.URLParams{"1"}
         url = echowbt.URL{Path: "/:id", Params: params, Values: values}
         rec = e.Client.Get(url, GenericHandler(), nil, echowbt.Headers{})
         assert.Equal(e.T(), http.StatusOK, rec.Code)
@@ -148,8 +148,8 @@ Example
     }
 
     func (e *EchoWBTestSuite) TestPut() {
-        params := []string{"id"}
-        values := []string{"1"}
+        params := echowbt.URLParams{"id"}
+        values := echowbt.URLParams{"1"}
         url := echowbt.URL{Path: "/:id", Params: params, Values: values}
         u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
         headers := echowbt.Headers{"Authorization": "Bearer <mytoken>"}
@@ -158,8 +158,8 @@ Example
     }
 
     func (e *EchoWBTestSuite) TestPatch() {
-        params := []string{"id"}
-        values := []string{"1"}
+        params := echowbt.URLParams{"id"}
+        values := echowbt.URLParams{"1"}
         url := echowbt.URL{Path: "/:id", Params: params, Values: values}
         u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
         headers := echowbt.Headers{"Authorization": "Bearer <mytoken>"}
@@ -168,8 +168,8 @@ Example
     }
 
     func (e *EchoWBTestSuite) TestDelete() {
-        params := []string{"id"}
-        values := []string{"1"}
+        params := echowbt.URLParams{"id"}
+        values := echowbt.URLParams{"1"}
         url := echowbt.URL{Path: "/:id", Params: params, Values: values}
         headers := echowbt.Headers{"Authorization": "Bearer <mytoken>"}
         rec := e.Client.Delete(url, GenericHandler(), nil, headers)

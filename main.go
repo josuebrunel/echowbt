@@ -11,14 +11,17 @@ import (
 // Headers is a type representing HTTP Headers
 type Headers map[string]string
 
+// URLParams allow passing value for url such as /users/:uuid
+type URLParams []string
+
 // URL is a type representing an URL with :
 // * Path
 // * Params
 // * Values
 type URL struct {
 	Path   string
-	Params []string
-	Values []string
+	Params URLParams
+	Values URLParams
 }
 
 // JSONObject holds the result of JSONDecode

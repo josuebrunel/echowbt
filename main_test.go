@@ -95,8 +95,8 @@ func (e *EchoWBTestSuite) TestGet() {
 	url = URL{Path: "/?lastname=kouka&firstname=kim"}
 	rec = e.Client.Get(url, GenericHandler(), nil, Headers{})
 	assert.Equal(e.T(), http.StatusOK, rec.Code)
-	params := []string{"id"}
-	values := []string{"1"}
+	params := URLParams{"id"}
+	values := URLParams{"1"}
 	url = URL{Path: "/:id", Params: params, Values: values}
 	rec = e.Client.Get(url, GenericHandler(), nil, Headers{})
 	assert.Equal(e.T(), http.StatusOK, rec.Code)
@@ -112,8 +112,8 @@ func (e *EchoWBTestSuite) TestPost() {
 }
 
 func (e *EchoWBTestSuite) TestPut() {
-	params := []string{"id"}
-	values := []string{"1"}
+	params := URLParams{"id"}
+	values := URLParams{"1"}
 	url := URL{Path: "/:id", Params: params, Values: values}
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
 	headers := Headers{"Authorization": "Bearer <mytoken>"}
@@ -122,8 +122,8 @@ func (e *EchoWBTestSuite) TestPut() {
 }
 
 func (e *EchoWBTestSuite) TestPatch() {
-	params := []string{"id"}
-	values := []string{"1"}
+	params := URLParams{"id"}
+	values := URLParams{"1"}
 	url := URL{Path: "/:id", Params: params, Values: values}
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
 	headers := Headers{"Authorization": "Bearer <mytoken>"}
@@ -132,8 +132,8 @@ func (e *EchoWBTestSuite) TestPatch() {
 }
 
 func (e *EchoWBTestSuite) TestDelete() {
-	params := []string{"id"}
-	values := []string{"1"}
+	params := URLParams{"id"}
+	values := URLParams{"1"}
 	url := URL{Path: "/:id", Params: params, Values: values}
 	headers := Headers{"Authorization": "Bearer <mytoken>"}
 	rec := e.Client.Delete(url, GenericHandler(), nil, headers)
