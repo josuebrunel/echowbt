@@ -68,9 +68,11 @@ func (c Client) Request(method string, url URL, handler echo.HandlerFunc, data [
 		"patch":  http.MethodPatch,
 	}
 	req := httptest.NewRequest(methods[method], url.Path, bytes.NewReader(data))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	for k, v := range headers {
 		req.Header.Set(k, v)
+	}
+	if _, ok := headers["Content-Type"]; !ok {
+		req.Header.Set("Content-Type", "application/json")
 	}
 	rec := httptest.NewRecorder()
 	ctx := c.E.NewContext(req, rec)

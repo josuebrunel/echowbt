@@ -1,6 +1,7 @@
 package echowbt
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -26,6 +27,12 @@ func GenericHandler() echo.HandlerFunc {
 		case "POST":
 			log.Info("POST /")
 			status = http.StatusCreated
+			contentType := c.Request().Header.Get("Content-Type")
+			if contentType == "application/x-www-form-urlencoded" {
+				c.Bind(&u)
+				fname := c.FormValue("firstname")
+				return c.String(status, fmt.Sprintf("Hello %s", fname))
+			}
 		case "PUT":
 			log.Info("PUT /:id")
 			if err := c.Bind(&u); err != nil {
@@ -109,6 +116,10 @@ func (e *EchoWBTestSuite) TestPost() {
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
 	rec := e.Client.Post(url, GenericHandler(), JSONEncode(u), Headers{})
 	assert.Equal(e.T(), http.StatusCreated, rec.Code)
+	// post form
+	headers := Headers{"Content-Type": "application/x-www-form-urlencoded"}
+	rec = e.Client.Post(url, GenericHandler(), []byte("firstname=Josué&lastname=Kouka"), headers)
+	assert.Equal(e.T(), "Hello Josué", rec.Body.String())
 }
 
 func (e *EchoWBTestSuite) TestPut() {
