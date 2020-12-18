@@ -33,8 +33,10 @@ jobs:
         name: Renew documentation
         runs-on: ubuntu-latest
         steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
         - name: Pull new module version
-          run: go get github.com/josuebrunel/echowbt
+          run: git describe --tags --abbrev=0 | xargs -I {tag} go get github.com/josuebrunel/echowbt@{tag}
           env:
             GOPROXY: https://proxy.golang.org
             GO111MODULE: on
