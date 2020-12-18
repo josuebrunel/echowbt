@@ -50,12 +50,20 @@ func JSONEncode(s interface{}) []byte {
 // Client represents the client instance
 type Client struct {
 	E *echo.Echo
+	H Headers
 }
 
 // New returns a client instance
 func New() (c Client) {
-	c = Client{echo.New()}
+	c = Client{E: echo.New(), H: Headers{"Content-Type": "application/json"}}
 	return
+}
+
+// SetHeaders allow you define some headers
+func (c *Client) SetHeaders(headers Headers) {
+	for k, v := range headers {
+		c.H[k] = v
+	}
 }
 
 // Request is the method performing the request
@@ -68,11 +76,13 @@ func (c Client) Request(method string, url URL, handler echo.HandlerFunc, data [
 		"patch":  http.MethodPatch,
 	}
 	req := httptest.NewRequest(methods[method], url.Path, bytes.NewReader(data))
-	for k, v := range headers {
+	// set client default headers
+	for k, v := range c.H {
 		req.Header.Set(k, v)
 	}
-	if _, ok := headers["Content-Type"]; !ok {
-		req.Header.Set("Content-Type", "application/json")
+	// set call headers
+	for k, v := range headers {
+		req.Header.Set(k, v)
 	}
 	rec := httptest.NewRecorder()
 	ctx := c.E.NewContext(req, rec)
