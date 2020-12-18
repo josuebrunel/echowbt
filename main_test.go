@@ -23,6 +23,7 @@ type User struct {
 func GenericHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		status, u := http.StatusOK, User{}
+		log.Info("HEADERS: ", c.Request().Header)
 		switch c.Request().Method {
 		case "POST":
 			log.Info("POST /")
@@ -89,6 +90,7 @@ type EchoWBTestSuite struct {
 
 func (e *EchoWBTestSuite) SetupSuite() {
 	e.Client = New()
+	e.Client.SetHeaders(Headers{"Authorization": "Token <mytoken>"})
 }
 
 func TestEchoWBT(t *testing.T) {
@@ -146,7 +148,6 @@ func (e *EchoWBTestSuite) TestDelete() {
 	params := URLParams{"id"}
 	values := URLParams{"1"}
 	url := URL{Path: "/:id", Params: params, Values: values}
-	headers := Headers{"Authorization": "Bearer <mytoken>"}
-	rec := e.Client.Delete(url, GenericHandler(), nil, headers)
+	rec := e.Client.Delete(url, GenericHandler(), nil, Headers{})
 	assert.Equal(e.T(), http.StatusAccepted, rec.Code)
 }
