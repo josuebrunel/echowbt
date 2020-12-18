@@ -8,14 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
+	"strings"
 	"testing"
 )
 
 type User struct {
 	ID        int    `json:"id"`
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Age       int    `json:"age"`
+	Firstname string `json:"firstname" form:"firstname"`
+	Lastname  string `json:"lastname" form:"lastname"`
+	Age       int    `json:"age" form:"age"`
 }
 
 // Handlers
@@ -29,10 +30,20 @@ func GenericHandler() echo.HandlerFunc {
 			log.Info("POST /")
 			status = http.StatusCreated
 			contentType := c.Request().Header.Get("Content-Type")
-			if contentType == "application/x-www-form-urlencoded" {
+			if strings.HasPrefix(contentType, "application/x-www-form-urlencoded") {
 				c.Bind(&u)
 				fname := c.FormValue("firstname")
 				return c.String(status, fmt.Sprintf("Hello %s", fname))
+			}
+			if strings.HasPrefix(contentType, "multipart/form") {
+				fname := c.FormValue("firstname")
+				form, err := c.MultipartForm()
+				if err != nil {
+					log.Error(err)
+					return err
+				}
+				filename := form.File["bio"][0].Filename
+				return c.String(status, fmt.Sprintf("Hello %s ! Your file %s is up.", fname, filename))
 			}
 		case "PUT":
 			log.Info("PUT /:id")
@@ -122,6 +133,16 @@ func (e *EchoWBTestSuite) TestPost() {
 	headers := Headers{"Content-Type": "application/x-www-form-urlencoded"}
 	rec = e.Client.Post(url, GenericHandler(), []byte("firstname=Josué&lastname=Kouka"), headers)
 	assert.Equal(e.T(), "Hello Josué", rec.Body.String())
+}
+
+func (e *EchoWBTestSuite) TestPostMultipartForm() {
+	url := URL{Path: "/"}
+	form, _ := FormData(Fields{"firstname": "Josué", "lastname": "Kouka"}, Fields{"bio": "bio.txt"})
+	headers := Headers{"Content-Type": form.ContentType}
+	rec := e.Client.Post(url, GenericHandler(), form.Data, headers)
+	assert.Equal(e.T(), http.StatusCreated, rec.Code)
+	expected := "Hello Josué ! Your file bio.txt is up."
+	assert.Equal(e.T(), expected, rec.Body.String())
 }
 
 func (e *EchoWBTestSuite) TestPut() {
