@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/labstack/echo/v4"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 )
 
 // Headers is a type representing HTTP Headers
@@ -27,6 +30,9 @@ type URL struct {
 // Dict represents a dict object
 type Dict map[string]interface{}
 
+// Fields represents a payload fields
+type Fields map[string]string
+
 // JSONDecode returns an interface from a json formatted
 // http.ResponseRecorder.Body
 func JSONDecode(b *bytes.Buffer) Dict {
@@ -45,6 +51,42 @@ func JSONEncode(s interface{}) []byte {
 		panic(err)
 	}
 	return out
+}
+
+// MultiPartForm is the struct returned by FormData func
+type MultiPartForm struct {
+	Data        []byte
+	ContentType string
+}
+
+// FormData helps create a form data payload
+func FormData(fields Fields, files Fields) (MultiPartForm, error) {
+	body := bytes.Buffer{}
+	writer := multipart.NewWriter(&body)
+	// write fields
+	for k, v := range fields {
+		writer.WriteField(k, v)
+	}
+	// handle file fields
+	for fname, fpath := range files {
+		file, err := os.Open(fpath)
+		if err != nil {
+			return MultiPartForm{}, err
+		}
+		defer file.Close()
+		part, err := writer.CreateFormFile(fname, fpath)
+		if err != nil {
+			return MultiPartForm{}, err
+		}
+		_, err = io.Copy(part, file)
+		if err != nil {
+			return MultiPartForm{}, err
+		}
+	}
+	if err := writer.Close(); err != nil {
+		return MultiPartForm{}, err
+	}
+	return MultiPartForm{body.Bytes(), writer.FormDataContentType()}, nil
 }
 
 // Client represents the client instance
