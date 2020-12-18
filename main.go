@@ -24,13 +24,13 @@ type URL struct {
 	Values URLParams
 }
 
-// JSONObject holds the result of JSONDecode
-type JSONObject map[string]interface{}
+// Dict represents a dict object
+type Dict map[string]interface{}
 
 // JSONDecode returns an interface from a json formatted
 // http.ResponseRecorder.Body
-func JSONDecode(b *bytes.Buffer) JSONObject {
-	v := JSONObject{}
+func JSONDecode(b *bytes.Buffer) Dict {
+	v := Dict{}
 	err := json.Unmarshal(b.Bytes(), &v)
 	if err != nil {
 		panic(err)
