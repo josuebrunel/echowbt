@@ -16,6 +16,8 @@ jobs:
             go-version: ${{ matrix.go-version }}
         - name: Checkout code
           uses: actions/checkout@v2
+        - name: Unshallow git checkout
+          run:  git fetch --prune --unshallow
         - name: Run tests
           run: go test -v -covermode=count -coverprofile=coverage.out ./...
         - name: Convert coverage to lcov
@@ -33,10 +35,8 @@ jobs:
         name: Renew documentation
         runs-on: ubuntu-latest
         steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
         - name: Pull new module version
-          run: git describe --tags --abbrev=0 | xargs -I {tag} go get github.com/josuebrunel/echowbt@{tag}
+          run: go get -u github.com/josuebrunel/echowbt
           env:
             GOPROXY: https://proxy.golang.org
             GO111MODULE: on
