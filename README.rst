@@ -18,6 +18,12 @@ EchoWBT
 
 
 **EchoWBT** is a simple wrapper of *httptest* allowing you to simply test your Echo_ app
+With **EchoWBT** handles for you :
+
+* the instanciation of *httptest.NewRequest* and *httptest.NewRecorder*
+* the binding of the two above with to an *echo.Context*
+* the setting of *request headers*
+* the setting of *Path*, *ParamNames* and *ParamsValues* for your context
 
 .. _Echo: https://github.com/labstack/echo
 
@@ -33,9 +39,22 @@ Quickstart
 
 .. code:: go
 
-    import "github.com/josuebrunel/echowbt"
+    import (
+        "github.com/josuebrunel/echowbt"
+        "github.com/project/app"
+        "testing"
+        "github.com/stretchr/testify/assert"
+        "net/http"
+    )
 
-    client := echowbt.New()
+    func TestPingHandler(t *testing.T)
+        client := echowbt.New()
+        rec := client.Get(echowbt.URL{"/ping"}, app.PingHandler(), nil, echowbt.Headers{"Authorization": "X-Auth xyw:uiyu"})
+        assert.Equal(t, http.StatusOK, rec.Code)
+        data := echowbt.JSONDecode(rec.Body)
+        assert.Equal(t, int64(1), data["count"])
+        assert.Equal(t, "ping", data["data"])
+
 
 Set a default content type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,7 +114,7 @@ You can send a *MultipartForm Data* by using *echowbt.FormData* func
 
     formFields := echowbt.Fields{"firstname": "Josué", "lastname": "Kouka", "City": "Pointe-Noire"}
     fileFields := echowbt.Fields{"avatar": "/tmp/jk.png"}
-    formData := echowbt.FormData(formFields, fileFields)
+    formData, _ := echowbt.FormData(formFields, fileFields)
     headers := echowbt.Headers{"Content-Type": formData.ContentType} // IMPORTANT FOR PART BOUNDARY
     rec := client.Post(url, MyHanlder(), FormData.Data, headers)
 
