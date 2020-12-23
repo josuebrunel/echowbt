@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 )
 
 // Headers is a type representing HTTP Headers
@@ -74,7 +75,7 @@ func FormData(fields Fields, files Fields) (MultiPartForm, error) {
 			return MultiPartForm{}, err
 		}
 		defer file.Close()
-		part, err := writer.CreateFormFile(fname, fpath)
+		part, err := writer.CreateFormFile(fname, filepath.Base(fpath))
 		if err != nil {
 			return MultiPartForm{}, err
 		}

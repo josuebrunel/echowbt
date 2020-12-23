@@ -137,7 +137,7 @@ func (e *EchoWBTestSuite) TestPost() {
 
 func (e *EchoWBTestSuite) TestPostMultipartForm() {
 	url := URL{Path: "/"}
-	form, _ := FormData(Fields{"firstname": "Josué", "lastname": "Kouka"}, Fields{"bio": "bio.txt"})
+	form, _ := FormData(Fields{"firstname": "Josué", "lastname": "Kouka"}, Fields{"bio": "testdata/bio.txt"})
 	headers := Headers{"Content-Type": form.ContentType}
 	rec := e.Client.Post(url, GenericHandler(), form.Data, headers)
 	assert.Equal(e.T(), http.StatusCreated, rec.Code)
