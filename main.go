@@ -10,29 +10,62 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-// Headers is a type representing HTTP Headers
-type Headers map[string]string
+func concat(ss ...string) string {
+	var ns strings.Builder
+	for _, s := range ss {
+		ns.WriteString(s)
+	}
+	return ns.String()
+}
 
-// URLParams allow passing value for url such as /users/:uuid
-type URLParams []string
+// Dict represents a dict object
+type Dict map[string]interface{}
+
+// DictString represents a dict of string key and values
+type DictString map[string]string
 
 // URL is a type representing an URL with :
 // * Path
 // * Params
 // * Values
 type URL struct {
-	Path   string
-	Params URLParams
-	Values URLParams
+	Path        string
+	Params      []string
+	Values      []string
+	QueryString map[string]string
 }
 
-// Dict represents a dict object
-type Dict map[string]interface{}
+func (u URL) String() string {
+	if u.QueryString == nil {
+		return u.Path
+	}
+	u.Path = concat(u.Path, "?")
+	for k, v := range u.QueryString {
+		if u.Path[len(u.Path)-1:] == "?" {
+			u.Path = concat(u.Path, k, "=", v)
+		} else {
+			u.Path = concat(u.Path, "&", k, "=", v)
+		}
+	}
+	return u.Path
+}
 
-// Fields represents a payload fields
-type Fields map[string]string
+// NewURL is a function returning an URL struct
+// p as Path
+// uv as Url Values ( e.g /:username/ )
+// qs as Url Query String ( e.g /?debug=true)
+func NewURL(p string, uv DictString, qs DictString) (u URL) {
+	u = URL{Path: p, QueryString: qs}
+	// set url values
+	for k, v := range uv {
+		u.Params = append(u.Params, k)
+		u.Values = append(u.Values, v)
+	}
+	return
+}
 
 // JSONDecode returns an interface from a json formatted
 // http.ResponseRecorder.Body
@@ -61,7 +94,7 @@ type MultiPartForm struct {
 }
 
 // FormData helps create a form data payload
-func FormData(fields Fields, files Fields) (MultiPartForm, error) {
+func FormData(fields DictString, files DictString) (MultiPartForm, error) {
 	body := bytes.Buffer{}
 	writer := multipart.NewWriter(&body)
 	// write fields
@@ -93,24 +126,24 @@ func FormData(fields Fields, files Fields) (MultiPartForm, error) {
 // Client represents the client instance
 type Client struct {
 	E *echo.Echo
-	H Headers
+	H DictString
 }
 
 // New returns a client instance
 func New() (c Client) {
-	c = Client{E: echo.New(), H: Headers{"Content-Type": "application/json"}}
+	c = Client{E: echo.New(), H: DictString{"Content-Type": "application/json"}}
 	return
 }
 
 // SetHeaders allow you define some headers
-func (c *Client) SetHeaders(headers Headers) {
+func (c *Client) SetHeaders(headers DictString) {
 	for k, v := range headers {
 		c.H[k] = v
 	}
 }
 
 // Request is the method performing the request
-func (c Client) Request(method string, url URL, handler echo.HandlerFunc, data []byte, headers Headers) *httptest.ResponseRecorder {
+func (c Client) Request(method string, url URL, handler echo.HandlerFunc, data []byte, headers DictString) *httptest.ResponseRecorder {
 	methods := map[string]string{
 		"get":    http.MethodGet,
 		"post":   http.MethodPost,
@@ -118,7 +151,8 @@ func (c Client) Request(method string, url URL, handler echo.HandlerFunc, data [
 		"delete": http.MethodDelete,
 		"patch":  http.MethodPatch,
 	}
-	req := httptest.NewRequest(methods[method], url.Path, bytes.NewReader(data))
+	path := url.String()
+	req := httptest.NewRequest(methods[method], path, bytes.NewReader(data))
 	// set client default headers
 	for k, v := range c.H {
 		req.Header.Set(k, v)
@@ -129,7 +163,7 @@ func (c Client) Request(method string, url URL, handler echo.HandlerFunc, data [
 	}
 	rec := httptest.NewRecorder()
 	ctx := c.E.NewContext(req, rec)
-	ctx.SetPath(url.Path)
+	ctx.SetPath(path)
 	ctx.SetParamNames(url.Params...)
 	ctx.SetParamValues(url.Values...)
 	handler(ctx)
@@ -137,26 +171,26 @@ func (c Client) Request(method string, url URL, handler echo.HandlerFunc, data [
 }
 
 // Get represents a Get Request
-func (c Client) Get(url URL, handler echo.HandlerFunc, data []byte, headers Headers) *httptest.ResponseRecorder {
+func (c Client) Get(url URL, handler echo.HandlerFunc, data []byte, headers DictString) *httptest.ResponseRecorder {
 	return c.Request("get", url, handler, data, headers)
 }
 
 // Post represents a Post Request
-func (c Client) Post(url URL, handler echo.HandlerFunc, data []byte, headers Headers) *httptest.ResponseRecorder {
+func (c Client) Post(url URL, handler echo.HandlerFunc, data []byte, headers DictString) *httptest.ResponseRecorder {
 	return c.Request("post", url, handler, data, headers)
 }
 
 // Put represents a Put Request
-func (c Client) Put(url URL, handler echo.HandlerFunc, data []byte, headers Headers) *httptest.ResponseRecorder {
+func (c Client) Put(url URL, handler echo.HandlerFunc, data []byte, headers DictString) *httptest.ResponseRecorder {
 	return c.Request("put", url, handler, data, headers)
 }
 
 // Patch represents a Patch Request
-func (c Client) Patch(url URL, handler echo.HandlerFunc, data []byte, headers Headers) *httptest.ResponseRecorder {
+func (c Client) Patch(url URL, handler echo.HandlerFunc, data []byte, headers DictString) *httptest.ResponseRecorder {
 	return c.Request("patch", url, handler, data, headers)
 }
 
 // Delete represents a Delete Request
-func (c Client) Delete(url URL, handler echo.HandlerFunc, data []byte, headers Headers) *httptest.ResponseRecorder {
+func (c Client) Delete(url URL, handler echo.HandlerFunc, data []byte, headers DictString) *httptest.ResponseRecorder {
 	return c.Request("delete", url, handler, data, headers)
 }
