@@ -49,7 +49,7 @@ Quickstart
 
     func TestPingHandler(t *testing.T)
         client := echowbt.New()
-        rec := client.Get(echowbt.URL{"/ping"}, app.PingHandler(), nil, echowbt.Headers{"Authorization": "X-Auth xyw:uiyu"})
+        rec := client.Get(echowbt.URL{"/ping"}, app.PingHandler(), nil, echowbt.DictString{"Authorization": "X-Auth xyw:uiyu"})
         assert.Equal(t, http.StatusOK, rec.Code)
         data := echowbt.JSONDecode(rec.Body)
         assert.Equal(t, int64(1), data["count"])
@@ -63,7 +63,7 @@ The default *Content-Type* is *application/json*. To change it use *SetHeaders* 
 
 .. code:: go
 
-    client.SetHeaders(echow.Headers{"Content-Type": "text/html"})
+    client.SetHeaders(echow.DictString{"Content-Type": "text/html"})
 
 URL Construction
 ^^^^^^^^^^^^^^^^
@@ -71,17 +71,14 @@ URL Construction
 .. code:: go
 
     // simple url
-    url := echowbt.URL{"/"}
-
-URL Named Params
-""""""""""""""""
-
-.. code:: go
-
-    params := echowbt.URLParams{"family_id", "member_id"}
-    values := echowbt.URLParams{"1", "3"}
-    url = echowbt.URL{Path: "/:family_id/:member_id", Params: params, Values: values}
-    rec := client.Get(url, MyHanlder(), nil, echow.Headers{})
+    url := echowbt.NewURL("/", nil, nil)
+    rec := client.Get(url, MyHanlder(), nil, nil)
+    // url with values e.g /:username/infos/
+    url = echowbt.NewURL("/:username/infos", map[string]string{"username": "loking"}, nil)
+    rec := client.Get(url, MyHanlder(), nil, nil)
+    // url with query string
+    url = echowbt.NewURL("/events/", nil, echowbt.DictString{"event_id": "23"})
+    rec := client.Get(url, MyHanlder(), nil, nil)
 
 Headers
 ^^^^^^^
@@ -90,7 +87,7 @@ You can pass *headers* to your request by using *echowbt.Headers* type
 
 .. code:: go
 
-    headers := echowbt.Headers{"Content-Type": "application/x-www-form-urlencoded", "Authorization": "Token <mytoken>"}
+    headers := echowbt.DictString{"Content-Type": "application/x-www-form-urlencoded", "Authorization": "Token <mytoken>"}
     rec := client.Post(url, MyHanlder(), []byte{"username=josh&password=joshpwd"}, headers)
 
 
@@ -112,10 +109,10 @@ You can send a *MultipartForm Data* by using *echowbt.FormData* func
 
 .. code:: go
 
-    formFields := echowbt.Fields{"firstname": "Josué", "lastname": "Kouka", "City": "Pointe-Noire"}
-    fileFields := echowbt.Fields{"avatar": "/tmp/jk.png"}
+    formFields := echowbt.DictString{"firstname": "Josué", "lastname": "Kouka", "City": "Pointe-Noire"}
+    fileFields := echowbt.DictString{"avatar": "/tmp/jk.png"}
     formData, _ := echowbt.FormData(formFields, fileFields)
-    headers := echowbt.Headers{"Content-Type": formData.ContentType} // IMPORTANT FOR PART BOUNDARY
+    headers := echowbt.DictString{"Content-Type": formData.ContentType} // IMPORTANT FOR PART BOUNDARY
     rec := client.Post(url, MyHanlder(), FormData.Data, headers)
 
 Decoding JSON Response

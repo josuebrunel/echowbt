@@ -101,7 +101,7 @@ type EchoWBTestSuite struct {
 
 func (e *EchoWBTestSuite) SetupSuite() {
 	e.Client = New()
-	e.Client.SetHeaders(Headers{"Authorization": "Token <mytoken>"})
+	e.Client.SetHeaders(DictString{"Authorization": "Token <mytoken>"})
 }
 
 func TestEchoWBT(t *testing.T) {
@@ -109,16 +109,14 @@ func TestEchoWBT(t *testing.T) {
 }
 
 func (e *EchoWBTestSuite) TestGet() {
-	url := URL{Path: "/"}
-	rec := e.Client.Get(url, GenericHandler(), nil, Headers{})
+	url := NewURL("/", nil, nil)
+	rec := e.Client.Get(url, GenericHandler(), nil, DictString{})
 	assert.Equal(e.T(), http.StatusOK, rec.Code)
-	url = URL{Path: "/?lastname=kouka&firstname=kim"}
-	rec = e.Client.Get(url, GenericHandler(), nil, Headers{})
+	url = NewURL("/", nil, DictString{"lastname": "kouka", "firstname": "kim"})
+	rec = e.Client.Get(url, GenericHandler(), nil, DictString{})
 	assert.Equal(e.T(), http.StatusOK, rec.Code)
-	params := URLParams{"id"}
-	values := URLParams{"1"}
-	url = URL{Path: "/:id", Params: params, Values: values}
-	rec = e.Client.Get(url, GenericHandler(), nil, Headers{})
+	url = NewURL("/:id", DictString{"id": "1"}, nil)
+	rec = e.Client.Get(url, GenericHandler(), nil, DictString{})
 	assert.Equal(e.T(), http.StatusOK, rec.Code)
 	data := JSONDecode(rec.Body)
 	assert.Equal(e.T(), "Loking", data["lastname"])
@@ -127,18 +125,18 @@ func (e *EchoWBTestSuite) TestGet() {
 func (e *EchoWBTestSuite) TestPost() {
 	url := URL{Path: "/"}
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
-	rec := e.Client.Post(url, GenericHandler(), JSONEncode(u), Headers{})
+	rec := e.Client.Post(url, GenericHandler(), JSONEncode(u), DictString{})
 	assert.Equal(e.T(), http.StatusCreated, rec.Code)
 	// post form
-	headers := Headers{"Content-Type": "application/x-www-form-urlencoded"}
+	headers := DictString{"Content-Type": "application/x-www-form-urlencoded"}
 	rec = e.Client.Post(url, GenericHandler(), []byte("firstname=Josué&lastname=Kouka"), headers)
 	assert.Equal(e.T(), "Hello Josué", rec.Body.String())
 }
 
 func (e *EchoWBTestSuite) TestPostMultipartForm() {
 	url := URL{Path: "/"}
-	form, _ := FormData(Fields{"firstname": "Josué", "lastname": "Kouka"}, Fields{"bio": "testdata/bio.txt"})
-	headers := Headers{"Content-Type": form.ContentType}
+	form, _ := FormData(DictString{"firstname": "Josué", "lastname": "Kouka"}, DictString{"bio": "testdata/bio.txt"})
+	headers := DictString{"Content-Type": form.ContentType}
 	rec := e.Client.Post(url, GenericHandler(), form.Data, headers)
 	assert.Equal(e.T(), http.StatusCreated, rec.Code)
 	expected := "Hello Josué ! Your file bio.txt is up."
@@ -146,29 +144,23 @@ func (e *EchoWBTestSuite) TestPostMultipartForm() {
 }
 
 func (e *EchoWBTestSuite) TestPut() {
-	params := URLParams{"id"}
-	values := URLParams{"1"}
-	url := URL{Path: "/:id", Params: params, Values: values}
+	url := NewURL("/:id", DictString{"id": "1"}, nil)
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
-	headers := Headers{"Authorization": "Bearer <mytoken>"}
+	headers := DictString{"Authorization": "Bearer <mytoken>"}
 	rec := e.Client.Put(url, GenericHandler(), JSONEncode(u), headers)
 	assert.Equal(e.T(), http.StatusNoContent, rec.Code)
 }
 
 func (e *EchoWBTestSuite) TestPatch() {
-	params := URLParams{"id"}
-	values := URLParams{"1"}
-	url := URL{Path: "/:id", Params: params, Values: values}
+	url := NewURL("/:id", DictString{"id": "1"}, nil)
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
-	headers := Headers{"Authorization": "Bearer <mytoken>"}
+	headers := DictString{"Authorization": "Bearer <mytoken>"}
 	rec := e.Client.Patch(url, GenericHandler(), JSONEncode(u), headers)
 	assert.Equal(e.T(), http.StatusNoContent, rec.Code)
 }
 
 func (e *EchoWBTestSuite) TestDelete() {
-	params := URLParams{"id"}
-	values := URLParams{"1"}
-	url := URL{Path: "/:id", Params: params, Values: values}
-	rec := e.Client.Delete(url, GenericHandler(), nil, Headers{})
+	url := NewURL("/:id", DictString{"id": "1"}, nil)
+	rec := e.Client.Delete(url, GenericHandler(), nil, DictString{})
 	assert.Equal(e.T(), http.StatusAccepted, rec.Code)
 }
