@@ -2,14 +2,14 @@ package echowbt
 
 import (
 	"fmt"
+	"net/http"
+	"reflect"
+	"strings"
+	"testing"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
-	"net/http"
-	"strings"
-	"testing"
 )
 
 type User struct {
@@ -94,73 +94,73 @@ func App() (app Application) {
 	return
 }
 
-type EchoWBTestSuite struct {
-	suite.Suite
-	Client Client
+func assert(t *testing.T, x, y any) {
+	if !reflect.DeepEqual(x, y) {
+		t.Fatalf("AssertionError: %v != %v", x, y)
+	}
 }
 
-func (e *EchoWBTestSuite) SetupSuite() {
-	e.Client = New()
-	e.Client.SetHeaders(DictString{"Authorization": "Token <mytoken>"})
+func NewTestClient() Client {
+	client := New()
+	client.SetHeaders(DictString{"Authorization": "Token <mytoken>"})
+	return client
 }
 
-func TestEchoWBT(t *testing.T) {
-	suite.Run(t, new(EchoWBTestSuite))
-}
+var testclient Client = NewTestClient()
 
-func (e *EchoWBTestSuite) TestGet() {
+func TestGet(t *testing.T) {
 	url := NewURL("/", nil, nil)
-	rec := e.Client.Get(url, GenericHandler(), nil, DictString{})
-	assert.Equal(e.T(), http.StatusOK, rec.Code)
+	rec := testclient.Get(url, GenericHandler(), nil, DictString{})
+	assert(t, http.StatusOK, rec.Code)
 	url = NewURL("/", nil, DictString{"lastname": "kouka", "firstname": "kim"})
-	rec = e.Client.Get(url, GenericHandler(), nil, DictString{})
-	assert.Equal(e.T(), http.StatusOK, rec.Code)
+	rec = testclient.Get(url, GenericHandler(), nil, DictString{})
+	assert(t, http.StatusOK, rec.Code)
 	url = NewURL("/:id", DictString{"id": "1"}, nil)
-	rec = e.Client.Get(url, GenericHandler(), nil, DictString{})
-	assert.Equal(e.T(), http.StatusOK, rec.Code)
+	rec = testclient.Get(url, GenericHandler(), nil, DictString{})
+	assert(t, http.StatusOK, rec.Code)
 	data := JSONDecode(rec.Body)
-	assert.Equal(e.T(), "Loking", data["lastname"])
+	assert(t, "Loking", data["lastname"])
 }
 
-func (e *EchoWBTestSuite) TestPost() {
+func TestPost(t *testing.T) {
 	url := URL{Path: "/"}
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
-	rec := e.Client.Post(url, GenericHandler(), JSONEncode(u), DictString{})
-	assert.Equal(e.T(), http.StatusCreated, rec.Code)
+	rec := testclient.Post(url, GenericHandler(), JSONEncode(u), DictString{})
+	assert(t, http.StatusCreated, rec.Code)
 	// post form
 	headers := DictString{"Content-Type": "application/x-www-form-urlencoded"}
-	rec = e.Client.Post(url, GenericHandler(), []byte("firstname=Josué&lastname=Kouka"), headers)
-	assert.Equal(e.T(), "Hello Josué", rec.Body.String())
+	rec = testclient.Post(url, GenericHandler(), []byte("firstname=Josué&lastname=Kouka"), headers)
+	assert(t, "Hello Josué", rec.Body.String())
 }
 
-func (e *EchoWBTestSuite) TestPostMultipartForm() {
+func TestPostMultipartForm(t *testing.T) {
 	url := URL{Path: "/"}
 	form, _ := FormData(DictString{"firstname": "Josué", "lastname": "Kouka"}, DictString{"bio": "testdata/bio.txt"})
 	headers := DictString{"Content-Type": form.ContentType}
-	rec := e.Client.Post(url, GenericHandler(), form.Data, headers)
-	assert.Equal(e.T(), http.StatusCreated, rec.Code)
+	rec := testclient.Post(url, GenericHandler(), form.Data, headers)
+	assert(t, http.StatusCreated, rec.Code)
 	expected := "Hello Josué ! Your file bio.txt is up."
-	assert.Equal(e.T(), expected, rec.Body.String())
+	assert(t, expected, rec.Body.String())
 }
 
-func (e *EchoWBTestSuite) TestPut() {
+func TestPut(t *testing.T) {
 	url := NewURL("/:id", DictString{"id": "1"}, nil)
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
 	headers := DictString{"Authorization": "Bearer <mytoken>"}
-	rec := e.Client.Put(url, GenericHandler(), JSONEncode(u), headers)
-	assert.Equal(e.T(), http.StatusNoContent, rec.Code)
+	rec := testclient.Put(url, GenericHandler(), JSONEncode(u), headers)
+	assert(t, http.StatusNoContent, rec.Code)
 }
 
-func (e *EchoWBTestSuite) TestPatch() {
+func TestPatch(t *testing.T) {
 	url := NewURL("/:id", DictString{"id": "1"}, nil)
 	u := User{Firstname: "Josué", Lastname: "Kouka", Age: 30}
 	headers := DictString{"Authorization": "Bearer <mytoken>"}
-	rec := e.Client.Patch(url, GenericHandler(), JSONEncode(u), headers)
-	assert.Equal(e.T(), http.StatusNoContent, rec.Code)
+	rec := testclient.Patch(url, GenericHandler(), JSONEncode(u), headers)
+	assert(t, http.StatusNoContent, rec.Code)
 }
 
-func (e *EchoWBTestSuite) TestDelete() {
+func TestDelete(t *testing.T) {
 	url := NewURL("/:id", DictString{"id": "1"}, nil)
-	rec := e.Client.Delete(url, GenericHandler(), nil, DictString{})
-	assert.Equal(e.T(), http.StatusAccepted, rec.Code)
+	rec := testclient.Delete(url, GenericHandler(), nil, DictString{})
+	assert(t, http.StatusAccepted, rec.Code)
 }
