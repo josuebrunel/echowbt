@@ -6,7 +6,7 @@ jobs:
     test:
         strategy:
           matrix:
-            go-version: [1.13.x, 1.14.x, 1.15.x]
+            go-version: [">=1.20.x"]
             os: [ubuntu-latest,]
         runs-on: ${{ matrix.os }}
         steps:
@@ -27,16 +27,13 @@ jobs:
           with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               path-to-lcov: coverage.lcov
-        - name: Check lint
-          run: |
-              go get -u golang.org/x/lint/golint
-              golint  ./...
+        
     doc:
         name: Renew documentation
         runs-on: ubuntu-latest
         steps:
         - name: Pull new module version
-          run: go get -u github.com/josuebrunel/echowbt
+          run: go list -m
           env:
             GOPROXY: https://proxy.golang.org
             GO111MODULE: on
